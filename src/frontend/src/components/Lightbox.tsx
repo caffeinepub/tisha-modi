@@ -2,10 +2,14 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
-import type { Photo } from "../backend";
+
+export interface GalleryPhoto {
+  src: string;
+  title: string;
+}
 
 interface LightboxProps {
-  photos: Photo[];
+  photos: GalleryPhoto[];
   currentIndex: number | null;
   onClose: () => void;
   onPrev: () => void;
@@ -91,7 +95,7 @@ export function Lightbox({
             transition={{ duration: 0.2 }}
           >
             <img
-              src={photo.blob.getDirectURL()}
+              src={photo.src}
               alt={photo.title}
               className="max-h-[80vh] max-w-full object-contain rounded-sm shadow-2xl"
             />

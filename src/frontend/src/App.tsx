@@ -3,15 +3,119 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { Camera, LogIn, LogOut, Settings } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminPanel } from "./components/AdminPanel";
 import { Lightbox } from "./components/Lightbox";
+import type { GalleryPhoto } from "./components/Lightbox";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useGetAllPhotos, useIsCallerAdmin } from "./hooks/useQueries";
 
 const SKELETON_KEYS = ["sk1", "sk2", "sk3", "sk4", "sk5", "sk6", "sk7", "sk8"];
 const SKELETON_HEIGHTS = [200, 280, 240, 320, 200, 260, 280, 200];
+
+const STATIC_PHOTOS: GalleryPhoto[] = [
+  {
+    src: "/assets/uploads/dsc08293-019d3189-7f16-755d-b074-bbbf95b88f2e-1.jpg",
+    title:
+      "Tisha Modi — Effortlessly elegant in monochrome. #TishaModi #BlackAndWhite #ModelLife",
+  },
+  {
+    src: "/assets/uploads/dsc08295-019d3189-8d43-7088-a3e9-621e9d128232-2.jpg",
+    title:
+      "Tisha Modi — Soft hues, bold presence. #TishaModi #PortraitPhotography #Style",
+  },
+  {
+    src: "/assets/uploads/dsc08308_1-019d3189-966e-75ce-8b25-8385d0b328c1-3.jpg",
+    title:
+      "Tisha Modi — Sunlight and smiles, purely Tisha. #TishaModi #NaturalLight #Fashion",
+  },
+  {
+    src: "/assets/uploads/dsc08309_1-019d3189-a030-761b-aa71-ad4a386d8502-4.jpg",
+    title:
+      "Tisha Modi — Cool shades, cooler confidence. #TishaModi #Sunglasses #Chic",
+  },
+  {
+    src: "/assets/uploads/dsc08291-019d3189-a494-70e8-93de-bd1d8afc59f1-5.jpg",
+    title:
+      "Tisha Modi — Where poise meets the outdoors. #TishaModi #OutdoorShoot #Vibes",
+  },
+  {
+    src: "/assets/uploads/dsc08307-019d3189-adfd-74b1-85fb-54e3f683127e-6.jpg",
+    title:
+      "Tisha Modi — Between light and shadow, she shines. #TishaModi #GoldenHour #ModelPhotography",
+  },
+  {
+    src: "/assets/uploads/dsc08307_1-019d3189-bb09-74a7-b7b1-b0455b688322-7.jpg",
+    title:
+      "Tisha Modi — Poised and picture-perfect. #TishaModi #PicturePerfect #Photography",
+  },
+  {
+    src: "/assets/uploads/dsc08310_1-019d3189-bc9d-759a-9036-079f865b6dc8-8.jpg",
+    title:
+      "Tisha Modi — Grace in every frame. #TishaModi #GracefulPose #ModelShoot",
+  },
+  {
+    src: "/assets/uploads/dsc08310-019d3189-ce06-777b-898e-2babbfb3ffd1-9.jpg",
+    title:
+      "Tisha Modi — A glance that tells a story. #TishaModi #Editorial #FashionPhotography",
+  },
+  {
+    src: "/assets/uploads/dsc08310_1-019d3189-f0a9-726c-ab43-9a1ed54c2489-10.jpg",
+    title:
+      "Tisha Modi — Effortless style, timeless beauty. #TishaModi #Timeless #StyleIcon",
+  },
+  {
+    src: "/assets/uploads/dsc08305-019d318a-1bf4-736c-a4c9-ea06e7f5dccc-11.jpg",
+    title:
+      "Tisha Modi — Bold silhouette, quiet strength. #TishaModi #Silhouette #BoldAndBeautiful",
+  },
+  {
+    src: "/assets/uploads/dsc08304-019d318a-3577-754b-acb4-81e28a840bea-12.jpg",
+    title:
+      "Tisha Modi — Every doorway is a runway for Tisha. #TishaModi #Runway #FashionForward",
+  },
+  {
+    src: "/assets/uploads/dsc08303-019d318a-3fbc-764d-8923-127672d59c21-13.jpg",
+    title:
+      "Tisha Modi — Monochrome magic by Tisha. #TishaModi #MonochromeFashion #Classic",
+  },
+  {
+    src: "/assets/uploads/dsc08300_1-019d318a-4106-7568-a660-f43343bc6934-14.jpg",
+    title:
+      "Tisha Modi — Standing tall, standing out. #TishaModi #StandOut #Confidence",
+  },
+  {
+    src: "/assets/uploads/dsc08300-019d318a-41a2-7564-bb08-36b0c97efd6a-15.jpg",
+    title:
+      "Tisha Modi — Color and charisma, perfectly balanced. #TishaModi #ColorfulFashion #Charisma",
+  },
+  {
+    src: "/assets/uploads/dsc08301-019d318a-41d2-7748-ac36-e836ed549663-16.jpg",
+    title:
+      "Tisha Modi — Framed by the world, focused on the future. #TishaModi #FocusedAndFierce #Goals",
+  },
+  {
+    src: "/assets/uploads/dsc08302-019d318a-4109-74b1-bb77-7ff3848d1ab4-17.jpg",
+    title:
+      "Tisha Modi — A moment of quiet brilliance. #TishaModi #QuietBrilliance #ArtPhotography",
+  },
+  {
+    src: "/assets/uploads/dsc08306_1-019d318a-4985-771e-933d-cf87368d8fe1-18.jpg",
+    title:
+      "Tisha Modi — Her smile lights up every shot. #TishaModi #SmileMore #JoyfulVibes",
+  },
+  {
+    src: "/assets/uploads/dsc08309-019d318a-4b4b-734d-87f1-27e884d90929-19.jpg",
+    title:
+      "Tisha Modi — Sunkissed and stylish. #TishaModi #Sunkissed #SummerVibes",
+  },
+  {
+    src: "/assets/uploads/dsc08308-019d318a-4d5f-720e-a55d-eb41542b27b8-20.jpg",
+    title:
+      "Tisha Modi — The art of being beautifully yourself. #TishaModi #BeYourself #BeautifullyYou",
+  },
+];
 
 export default function App() {
   const { login, clear, loginStatus, identity, isInitializing } =
@@ -22,8 +126,17 @@ export default function App() {
   const isLoggedIn = !!identity;
   const isLoggingIn = loginStatus === "logging-in";
 
-  const { data: photos = [], isLoading: photosLoading } = useGetAllPhotos();
+  const { data: backendPhotos = [], isLoading: photosLoading } =
+    useGetAllPhotos();
   const { data: isAdmin } = useIsCallerAdmin();
+
+  const allPhotos: GalleryPhoto[] = useMemo(() => {
+    const fromBackend: GalleryPhoto[] = backendPhotos.map((p) => ({
+      src: p.blob.getDirectURL(),
+      title: p.title,
+    }));
+    return [...STATIC_PHOTOS, ...fromBackend];
+  }, [backendPhotos]);
 
   const handleLogin = async () => {
     try {
@@ -43,10 +156,10 @@ export default function App() {
   const closeLightbox = () => setLightboxIndex(null);
   const prevPhoto = () =>
     setLightboxIndex((i) =>
-      i !== null ? (i - 1 + photos.length) % photos.length : null,
+      i !== null ? (i - 1 + allPhotos.length) % allPhotos.length : null,
     );
   const nextPhoto = () =>
-    setLightboxIndex((i) => (i !== null ? (i + 1) % photos.length : null));
+    setLightboxIndex((i) => (i !== null ? (i + 1) % allPhotos.length : null));
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -228,44 +341,12 @@ export default function App() {
                       </div>
                     ))}
                   </div>
-                ) : photos.length === 0 ? (
-                  <motion.div
-                    data-ocid="gallery.empty_state"
-                    className="flex flex-col items-center justify-center py-32 gap-6"
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center">
-                      <Camera className="w-10 h-10 text-muted-foreground" />
-                    </div>
-                    <div className="text-center">
-                      <h3 className="font-display text-2xl font-semibold text-foreground mb-2">
-                        Gallery Coming Soon
-                      </h3>
-                      <p className="text-muted-foreground font-body max-w-sm">
-                        Beautiful moments are being curated. Check back soon to
-                        explore the collection.
-                      </p>
-                    </div>
-                    {!isLoggedIn && (
-                      <Button
-                        data-ocid="gallery.login.button"
-                        variant="outline"
-                        onClick={handleLogin}
-                        className="mt-2"
-                      >
-                        <LogIn className="w-4 h-4 mr-2" />
-                        Admin Login
-                      </Button>
-                    )}
-                  </motion.div>
                 ) : (
                   <div className="masonry-grid">
-                    {photos.map((photo, i) => (
+                    {allPhotos.map((photo, i) => (
                       <motion.div
                         data-ocid={`gallery.item.${i + 1}`}
-                        key={photo.title}
+                        key={`${photo.src}-${i}`}
                         className="masonry-item group relative cursor-pointer overflow-hidden rounded-lg"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -274,7 +355,7 @@ export default function App() {
                         onClick={() => openLightbox(i)}
                       >
                         <img
-                          src={photo.blob.getDirectURL()}
+                          src={photo.src}
                           alt={photo.title}
                           loading="lazy"
                           className="w-full object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
@@ -298,7 +379,7 @@ export default function App() {
 
       {/* Lightbox */}
       <Lightbox
-        photos={photos}
+        photos={allPhotos}
         currentIndex={lightboxIndex}
         onClose={closeLightbox}
         onPrev={prevPhoto}
